@@ -1,0 +1,6 @@
+# build objects
+*.d
+*.o
+
+# compiled executable
+*.out
