@@ -5,7 +5,7 @@ LDFLAGS = -g # linker flags
 
 # use regular Netlib BLAS
 # have header include path at the start, before -Wall, or else debug symbols don't get created
-CFLAGS = -I/usr/local/include -Iutil -I -Wall -g -c	# compiler flags
+CFLAGS = -I/usr/local/include -I/opt/homebrew/opt/openblas/include -Iutil -I -Wall -g -c	# compiler flags
 LIBS = -lblas -lm
 
 # use AMD Ryzen BLAS, statically link
