@@ -12,6 +12,7 @@
 #include <stdint.h>
 #include <time.h>
 
+// #include <FLAME.h>  // AMD libflame (fork of blis): https://github.com/amd/libflame?tab=readme-ov-file
 #include <cblas.h>
 
 #include "mymatrix.h"
@@ -60,7 +61,10 @@ void sanity_check(void){
 }
 
 
-void test_mymatrix_mat_mat_mult(int nrows, int ncols, int N){
+/**
+ * returns execution time in milliseconds
+ */
+int test_mymatrix_mat_mat_mult(int nrows, int ncols, int N){
     printf("starting test, nrows=%3d, ncols=%3d, N=%3d\n", nrows, ncols, N);
 
     mymatrix* matA = random_matrix(nrows, ncols, -1000, 1000);
@@ -88,10 +92,15 @@ void test_mymatrix_mat_mat_mult(int nrows, int ncols, int N){
     del_matrix(matA);
     del_matrix(matB);
     del_matrix(result);
+
+    return msec;
 }
 
 
-void test_blas_mat_mat_mult(int nrows, int ncols, int N){
+/**
+ * returns execution time in milliseconds
+ */
+int test_blas_mat_mat_mult(int nrows, int ncols, int N){
     printf("starting test, nrows=%3d, ncols=%3d, N=%3d\n", nrows, ncols, N);
 
     // create
@@ -120,13 +129,22 @@ void test_blas_mat_mat_mult(int nrows, int ncols, int N){
         // lblas normal
         // cblas_dgemm(CblasRowMajor, CblasNoTrans, CblasNoTrans, n, n, n, 1.0, A, n, B, n, 0.0, C, n);
 
-        // AMD Ryzen blas
+        // AMD Ryzen BLIS
         // cblas_dgemm(enum CBLAS_ORDER Order, enum CBLAS_TRANSPOSE TransA,
         //                                   enum CBLAS_TRANSPOSE TransB, f77_int M, f77_int N,
         //                                   f77_int K, double alpha, const double* A,
         //                                   f77_int lda, const double* B, f77_int ldb,
         //                                   double beta, double* C, f77_int ldc);
-        cblas_dgemm(CblasRowMajor, CblasNoTrans, CblasNoTrans, n, n, n, 1.0, A, n, B, n, 0.0, C, n);
+        // cblas_cgemm(CblasRowMajor, CblasNoTrans, CblasNoTrans, n, n, n, 1.0, A, n, B, n, 0.0, C, n);
+
+
+        // AMD Ryzen libflame (AMD fork of blis)
+        // void cblas_dgemm(const enum CBLAS_ORDER Order, const enum CBLAS_TRANSPOSE TransA,
+        //          const enum CBLAS_TRANSPOSE TransB, const integer M, const integer N,
+        //          const integer K, const double alpha, const double *A,
+        //          const integer lda, const double *B, const integer ldb,
+        //          const double beta, double *C, const integer ldc);
+        cblas_dgemm(CblasRowMajor, CblasNoTrans, CblasNoTrans, n, n, n, 1.0, A, n, B, n, 0.0, C, n);      // liyongda (29-Nov-2024): use dgemm for double precision float instead of cgemm=complex 
     }
     clock_t stop = clock();
     clock_t diff = stop - start;
@@ -137,6 +155,8 @@ void test_blas_mat_mat_mult(int nrows, int ncols, int N){
     // clean up
     free(A);
     free(B);
+
+    return msec;
 }
 
 
@@ -147,12 +167,18 @@ int main(int argc, char* argv[]){
     int nrows = 100;    // assume square matrix
     int N = 1000;
 
+    int msec_mymatrix = 0;
+    int msec_blas = 0;
+
     printf("===== mymatrix (float, 32-bit single precision) ===== \n");
-    test_mymatrix_mat_mat_mult(nrows, nrows, N);
+    msec_mymatrix = test_mymatrix_mat_mat_mult(nrows, nrows, N);
 
     // printf("===== AMD Ryzen blas (double, 64-bit double precision)===== \n");
     printf("===== Netlib blas (double, 64-bit double precision)===== \n");
-    test_blas_mat_mat_mult(nrows, nrows, N);
+    msec_blas = test_blas_mat_mat_mult(nrows, nrows, N);
+
+    printf("==== conclusion ====\n");
+    printf("The second one was %i times faster.\n", msec_mymatrix/msec_blas);
 
     return 0;
 }

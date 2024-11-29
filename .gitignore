@@ -4,3 +4,6 @@
 
 # compiled executable
 *.out
+
+# vscode
+.vscode

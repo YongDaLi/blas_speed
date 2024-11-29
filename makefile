@@ -12,6 +12,9 @@ LIBS = -lblas -lm
 # CFLAGS = -Wall -I/usr/local/include -I/home/liyongda/Downloads/amd-blis/include/LP64 -Iutil -I -g -c	# compiler flags
 # LIBS = /home/liyongda/Downloads/amd-blis/lib/LP64/libblis.a  -lm -lpthread
 
+# CFLAGS = -Wall -I/home/liyongda/Downloads/amd-libflame/include/LP64 -I/usr/local/include -Iutil -I -g -c	# compiler flags
+# LIBS = -L/home/liyongda/Downloads/amd-libflame/lib/LP64/libflame.a -lm -lpthread
+
 SOURCES :=	\
 	main.c	\
 	mymatrix.c	\
